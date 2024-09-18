@@ -1,0 +1,64 @@
+
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+void encryptText(char plainText[], char key[], char cipherText[]);
+void decryptText(char cipherText[], char key[], char plainText[]);
+void generateKey(char plainText[], char key[], char extendedKey[]);
+
+int main() {
+    char plainText[100], key[100], cipherText[100], decryptedText[100];
+    char extendedKey[100];
+    printf("Enter the plaintext: ");
+    fgets(plainText, 100, stdin);
+    plainText[strlen(plainText) - 1] = '\0';  
+    printf("Enter the key: ");
+    fgets(key, 100, stdin);
+    key[strlen(key) - 1] = '\0';  
+    generateKey(plainText, key, extendedKey);
+    encryptText(plainText, extendedKey, cipherText);
+    printf("Encrypted Text: %s\n", cipherText);
+    decryptText(cipherText, extendedKey, decryptedText);
+    printf("Decrypted Text: %s\n", decryptedText);
+    return 0;
+}
+void generateKey(char plainText[], char key[], char extendedKey[]) {
+    int plainTextLength = strlen(plainText);
+    int keyLength = strlen(key);
+    int i, j;
+
+    for (i = 0, j = 0; i < plainTextLength; i++) {
+        if (isalpha(plainText[i])) {   
+            extendedKey[i] = toupper(key[j % keyLength]); 
+            j++;
+        } else {
+            extendedKey[i] = plainText[i];  
+        }
+    }
+    extendedKey[i] = '\0'; 
+}
+void encryptText(char plainText[], char key[], char cipherText[]) {
+    int i;
+    for (i = 0; i < strlen(plainText); i++) {
+        if (isalpha(plainText[i])) {  
+            char base = isupper(plainText[i]) ? 'A' : 'a';
+            cipherText[i] = (toupper(plainText[i]) + key[i] - 2 * 'A') % 26 + 'A';  
+        } else {
+            cipherText[i] = plainText[i];  
+        }
+    }
+    cipherText[i] = '\0'; 
+}
+
+void decryptText(char cipherText[], char key[], char plainText[]) {
+    int i;
+    for (i = 0; i < strlen(cipherText); i++) {
+        if (isalpha(cipherText[i])) {  
+            char base = isupper(cipherText[i]) ? 'A' : 'a';
+            plainText[i] = (cipherText[i] - key[i] + 26) % 26 + 'A';  
+        } else {
+            plainText[i] = cipherText[i];  
+        }
+    }
+    plainText[i] = '\0';
+}
