@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <string.h>
+
+// Function prototypes
+int modInverse(int a, int m);
+void decryptText(char cipherText[], int a, int b, char plainText[]);
+
+int main() {
+    char cipherText[100], plainText[100];
+    int a = 3, b = 15;  
+    printf("Enter the ciphertext: ");
+    fgets(cipherText, 100, stdin);
+    cipherText[strlen(cipherText) - 1] = '\0';  
+    decryptText(cipherText, a, b, plainText);
+    printf("Decrypted Text: %s\n", plainText);
+    return 0;
+}int modInverse(int a, int m) {
+    for (int x = 1; x < m; x++) {
+        if ((a * x) % m == 1) {
+            return x;
+        }
+    }
+    return -1; 
+}
+void decryptText(char cipherText[], int a, int b, char plainText[]) {
+    int a_inv = modInverse(a, 26);  
+    if (a_inv == -1) {
+        printf("No modular inverse for the given 'a'. Decryption is not possible.\n");
+        return;
+    }
+
+    for (int i = 0; i < strlen(cipherText); i++) {
+        if (cipherText[i] >= 'A' && cipherText[i] <= 'Z') {
+            plainText[i] = (a_inv * (cipherText[i] - 'A' - b + 26)) % 26 + 'A';
+        } else if (cipherText[i] >= 'a' && cipherText[i] <= 'z') {
+            plainText[i] = (a_inv * (cipherText[i] - 'a' - b + 26)) % 26 + 'a';
+        } else {
+            plainText[i] = cipherText[i];  
+        }
+    }
+    plainText[strlen(cipherText)] = '\0';
+}
