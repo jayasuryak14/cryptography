@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+void prepareText(char text[], char preparedText[]);
+void encryptPlayfair(char plaintext[], char matrix[5][5], char ciphertext[]);
+void findPosition(char letter, char matrix[5][5], int *row, int *col);
+
+int main() {
+    char matrix[5][5] = {
+        {'M', 'F', 'H', 'I', 'K'},
+        {'U', 'N', 'O', 'P', 'Q'},
+        {'Z', 'V', 'W', 'X', 'Y'},
+        {'E', 'L', 'A', 'R', 'G'},
+        {'D', 'S', 'T', 'B', 'C'}
+    };
+
+    char plaintext[500];
+    char preparedText[500];
+    char ciphertext[500];
+    printf("Enter the plaintext message: ");
+    fgets(plaintext, sizeof(plaintext), stdin);
+    plaintext[strcspn(plaintext, "\n")] = '\0'; 
+
+    prepareText(plaintext, preparedText);
+    encryptPlayfair(preparedText, matrix, ciphertext);
+    printf("Ciphertext: %s\n", ciphertext);
+
+    return 0;
+}
+
+void prepareText(char text[], char preparedText[]) {
+    int len = strlen(text);
+    int index = 0;
+
+    for (int i = 0; i < len; i++) {
+        if (isalpha(text[i])) {
+            char letter = toupper(text[i]);
+            if (letter == 'J') letter = 'I';  // Replace 'J' with 'I'
+
+            preparedText[index++] = letter;
+
+            if (i < len - 1 && toupper(text[i]) == toupper(text[i + 1])) {
+                preparedText[index++] = 'X';
+            }
+        }
+    }
+
+    if (index % 2 != 0) {
+        preparedText[index++] = 'X';
+    }
+
+    preparedText[index] = '\0';
+}
+
+void findPosition(char letter, char matrix[5][5], int *row, int *col) {
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            if (matrix[i][j] == letter) {
+                *row = i;
+                *col = j;
+                return;
+            }
+        }
+    }
+}
+
+void encryptPlayfair(char plaintext[], char matrix[5][5], char ciphertext[]) {
+    int len = strlen(plaintext);
+    int index = 0;
+
+    for (int i = 0; i < len; i += 2) {
+        char first = plaintext[i];
+        char second = plaintext[i + 1];
+
+        int row1, col1, row2, col2;
+        findPosition(first, matrix, &row1, &col1);
+        findPosition(second, matrix, &row2, &col2);
+
+        if (row1 == row2) {
+            ciphertext[index++] = matrix[row1][(col1 + 1) % 5];
+            ciphertext[index++] = matrix[row2][(col2 + 1) % 5];
+        } else if (col1 == col2) {
+            ciphertext[index++] = matrix[(row1 + 1) % 5][col1];
+            ciphertext[index++] = matrix[(row2 + 1) % 5][col2];
+        } else {
+            ciphertext[index++] = matrix[row1][col2];
+            ciphertext[index++] = matrix[row2][col1];
+        }
+    }
+
+    ciphertext[index] = '\0';  
+}
