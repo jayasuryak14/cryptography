@@ -1,0 +1,59 @@
+
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_LEN 1000
+#define CHAR_COUNT 256
+
+void frequencyAnalysis(char ciphertext[], int freq[]);
+void printFrequency(int freq[]);
+void substituteAndPrint(char ciphertext[], char substitution[], char result[]);
+
+int main() {
+    char ciphertext[] = "53‡‡†305))6*;4826)4‡.)4‡);806*;48†8¶60))85;;]8*;:‡*8†83 (88)5*†;46(;88*96*?;8)*‡(;485);5*†2:*‡(;4956*2(5*—4)8¶8* ;4069285);)6†8)4‡‡;1(‡9;48081;8:8‡1;48†85;4)485†528806*81 (‡9;48;(88;4(‡?34;48)4‡;161;:188;‡?;";
+
+    int freq[CHAR_COUNT] = {0};
+    char substitution[CHAR_COUNT] = {0};
+    char result[MAX_LEN];
+        frequencyAnalysis(ciphertext, freq);
+    printFrequency(freq);
+    
+    strcpy(substitution, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"); // Placeholder
+    
+    substituteAndPrint(ciphertext, substitution, result);
+    printf("Decrypted message: %s\n", result);
+    
+    return 0;
+}
+
+void frequencyAnalysis(char ciphertext[], int freq[]) {
+    int len = strlen(ciphertext);
+    
+    for (int i = 0; i < len; i++) {
+        if (isprint(ciphertext[i])) {
+            freq[(unsigned char)ciphertext[i]]++;
+        }
+    }
+}
+
+void printFrequency(int freq[]) {
+    printf("Character frequencies:\n");
+    for (int i = 0; i < CHAR_COUNT; i++) {
+        if (freq[i] > 0) {
+            printf("'%c': %d\n", i, freq[i]);
+        }
+    }
+}
+
+void substituteAndPrint(char ciphertext[], char substitution[], char result[]) {
+    int len = strlen(ciphertext);
+    for (int i = 0; i < len; i++) {
+        if (isprint(ciphertext[i])) {
+            result[i] = substitution[(unsigned char)ciphertext[i]];
+        } else {
+            result[i] = ciphertext[i];
+        }
+    }
+    result[len] = '\0'; 
+}
