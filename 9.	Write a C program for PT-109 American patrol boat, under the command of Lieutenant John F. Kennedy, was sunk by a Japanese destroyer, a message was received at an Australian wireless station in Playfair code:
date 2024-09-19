@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+void generatePlayfairMatrix(char keyword[], char matrix[5][5]);
+void decryptPlayfair(char ciphertext[], char matrix[5][5], char plaintext[]);
+void findPosition(char letter, char matrix[5][5], int *row, int *col);
+
+int main() {
+    char keyword[] = "KENNEDY";  
+    char matrix[5][5];      
+    char ciphertext[] = "KXJEYUREBEZWEHEWRYTUHEYFS";
+    char plaintext[500];         
+    generatePlayfairMatrix(keyword, matrix);
+    decryptPlayfair(ciphertext, matrix, plaintext);
+    printf("Decrypted Text: %s\n", plaintext);
+    return 0;
+}
+void generatePlayfairMatrix(char keyword[], char matrix[5][5]) {
+    int used[26] = {0}; 
+    int index = 0, row = 0, col = 0;
+    for (int i = 0; i < strlen(keyword); i++) {
+        char letter = toupper(keyword[i]);
+        if (letter == 'J') letter = 'I';  
+        if (!used[letter - 'A']) {
+            matrix[row][col++] = letter;
+            if (col == 5) {
+                col = 0;
+                row++;
+            }
+            used[letter - 'A'] = 1;
+        }
+    }
+    for (char letter = 'A'; letter <= 'Z'; letter++) {
+        if (letter == 'J') continue;  // Skip 'J'
+        if (!used[letter - 'A']) {
+            matrix[row][col++] = letter;
+            if (col == 5) {
+                col = 0;
+                row++;
+            }
+            used[letter - 'A'] = 1;
+        }
+    }
+    printf("Playfair Matrix:\n");
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            printf("%c ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+}
+void decryptPlayfair(char ciphertext[], char matrix[5][5], char plaintext[]) {
+    int len = strlen(ciphertext);
+    int index = 0;
+
+    for (int i = 0; i < len; i += 2) {
+        char first = toupper(ciphertext[i]);
+        char second = toupper(ciphertext[i + 1]);
+        int row1, col1, row2, col2;
+        findPosition(first, matrix, &row1, &col1);
+        findPosition(second, matrix, &row2, &col2);
+        if (row1 == row2) {
+            plaintext[index++] = matrix[row1][(col1 + 4) % 5];
+            plaintext[index++] = matrix[row2][(col2 + 4) % 5];
+        } else if (col1 == col2) {
+            plaintext[index++] = matrix[(row1 + 4) % 5][col1];
+            plaintext[index++] = matrix[(row2 + 4) % 5][col2];
+        } else {
+            plaintext[index++] = matrix[row1][col2];
+            plaintext[index++] = matrix[row2][col1];
+        }
+    }
+    plaintext[index] = '\0';  
+}
+void findPosition(char letter, char matrix[5][5], int *row, int *col) {
+    if (letter == 'J') letter = 'I';  // Treat I and J as the same
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            if (matrix[i][j] == letter) {
+                *row = i;
+                *col = j;
+                return;
+            }
+        }
+    }
+}
